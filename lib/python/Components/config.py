@@ -455,12 +455,14 @@ class ConfigBoolean(ConfigElement):
 		return descr
 
 	def getMulti(self, selected):
-		if not self.grafic:
-			return "text", self.getText()
-		elif not self.value:
-			return ('bolean', self.falseIcon)
+		from config import config
+		if self.grafic and config.misc.boolean_graphic.value:
+			if self.value:
+				return ('bolean', self.trueIcon)
+			else:
+				return ('bolean', self.falseIcon)
 		else:
-			return ('bolean', self.trueIcon)
+			return "text", self.getText()
 
 	def tostring(self, value):
 		if not value or str(value).lower() == 'false':

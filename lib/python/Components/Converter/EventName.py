@@ -4,7 +4,6 @@ from Components.Converter.Converter import Converter
 from Components.Element import cached
 from Components.Converter.genre import getGenreStringSub
 
-
 class EventName(Converter, object):
 	NAME = 0
 	SHORT_DESCRIPTION = 1
@@ -17,10 +16,12 @@ class EventName(Converter, object):
 	GENRE = 8
 	RATING = 9
 	SRATING = 10
-	PDC = 11
-	PDCTIME = 12
-	PDCTIMESHORT = 13
-	ISRUNNINGSTATUS = 14
+	EVENT_EXTRADATA = 11
+	EPG_SOURCE = 12
+	PDC = 13
+	PDCTIME = 14
+	PDCTIMESHORT = 15
+	ISRUNNINGSTATUS = 16
 
 	NEXT_DESCRIPTION = 21
 	THIRD_NAME = 22
@@ -58,6 +59,10 @@ class EventName(Converter, object):
 			self.type = self.PDCTIMESHORT
 		elif type == "IsRunningStatus":
 			self.type = self.ISRUNNINGSTATUS
+		elif type == "EventExtraData":
+			self.type = self.EVENT_EXTRADATA
+		elif type == "EPGSource":
+			self.type = self.EPG_SOURCE
 		elif type == "NextDescription":
 			self.type = self.NEXT_DESCRIPTION
 		elif type == "ThirdName":
@@ -137,6 +142,14 @@ class EventName(Converter, object):
 			return description + extended
 		elif self.type == self.ID:
 			return str(event.getEventId())
+		elif self.type == self.EVENT_EXTRADATA:
+		pass
+			#not include yet
+			#ret = event.getExtraEventData()
+		elif self.type == self.EPG_SOURCE:
+			pass
+			#not include yet
+			#ret = event.getEPGSource()
 		elif self.type == self.PDC:
 			if event.getPdcPil():
 				return _("PDC")

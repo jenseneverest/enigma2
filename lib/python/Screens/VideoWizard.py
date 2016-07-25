@@ -63,6 +63,8 @@ class VideoWizard(WizardLanguage, Rc):
 		WizardLanguage.__init__(self, session, showSteps = False, showStepSlider = False)
 		Rc.__init__(self)
 		self["wizard"] = Pixmap()
+		self["HelpWindow"] = Pixmap()
+		self["HelpWindow"].hide()
 		self["portpic"] = Pixmap()
 
 		self.port = None

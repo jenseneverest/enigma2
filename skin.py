@@ -297,6 +297,8 @@ class AttributeParser:
 			self.guiObject.resize(parseSize(value, self.scaleTuple, self.guiObject, self.desktop))
 	def animationPaused(self, value):
 		pass
+	def NoAnimationAfter(self, value):
+		pass
 	def animationMode(self, value):
 		self.guiObject.setAnimationMode(
 			{ "disable": 0x00,
@@ -305,6 +307,8 @@ class AttributeParser:
 				"offhide": 0x01,
 				"onshow": 0x01,
 				"onhide": 0x10,
+				"disable_onshow": 0x10,
+				"disable_onhide": 0x01,
 			}[value])
 	def title(self, value):
 		self.guiObject.setTitle(_(value))
@@ -312,24 +316,95 @@ class AttributeParser:
 		self.guiObject.setText(_(value))
 	def font(self, value):
 		self.guiObject.setFont(parseFont(value, self.scaleTuple))
+	def secondfont(self, value):
+		self.guiObject.setSecondFont(parseFont(value, self.scaleTuple))
 	def zPosition(self, value):
 		self.guiObject.setZPosition(int(value))
 	def itemHeight(self, value):
 		self.guiObject.setItemHeight(int(value))
 	def pixmap(self, value):
-		ptr = loadPixmap(value, self.desktop)
+		global pngcache
+		ptr = None
+		for cvalue, cptr in pngcache:
+			if cvalue== value:
+				ptr=cptr
+		if ptr is None:
+			if not fileExists(value):
+				ptr = loadPixmap(resolveFilename(SCOPE_SKIN_IMAGE, value), self.desktop)
+			else:
+				ptr = loadPixmap(value, self.desktop)
 		self.guiObject.setPixmap(ptr)
 	def backgroundPixmap(self, value):
-		ptr = loadPixmap(value, self.desktop)
+		global pngcache
+		ptr = None
+		for cvalue, cptr in pngcache:
+			if cvalue== value:
+				ptr=cptr
+		if ptr is None:
+			if not fileExists(value):
+				ptr = loadPixmap(resolveFilename(SCOPE_SKIN_IMAGE, value), self.desktop)
+			else:
+				ptr = loadPixmap(value, self.desktop)
 		self.guiObject.setBackgroundPicture(ptr)
 	def selectionPixmap(self, value):
-		ptr = loadPixmap(value, self.desktop)
+		global pngcache
+		ptr = None
+		for cvalue, cptr in pngcache:
+			if cvalue== value:
+				ptr=cptr
+		if ptr is None:
+			if not fileExists(value):
+				ptr = loadPixmap(resolveFilename(SCOPE_SKIN_IMAGE, value), self.desktop)
+			else:
+				ptr = loadPixmap(value, self.desktop)
 		self.guiObject.setSelectionPicture(ptr)
 	def sliderPixmap(self, value):
-		ptr = loadPixmap(value, self.desktop)
+		global pngcache
+		ptr = None
+		for cvalue, cptr in pngcache:
+			if cvalue== value:
+				ptr=cptr
+		if ptr is None:
+			if not fileExists(value):
+				ptr = loadPixmap(resolveFilename(SCOPE_SKIN_IMAGE, value), self.desktop)
+			else:
+				ptr = loadPixmap(value, self.desktop)
 		self.guiObject.setSliderPicture(ptr)
 	def scrollbarbackgroundPixmap(self, value):
-		ptr = loadPixmap(value, self.desktop)
+		global pngcache
+		ptr = None
+		for cvalue, cptr in pngcache:
+			if cvalue== value:
+				ptr=cptr
+		if ptr is None:
+			if not fileExists(value):
+				ptr = loadPixmap(resolveFilename(SCOPE_SKIN_IMAGE, value), self.desktop)
+			else:
+				ptr = loadPixmap(value, self.desktop)
+		self.guiObject.setScrollbarBackgroundPicture(ptr)
+	def scrollbarSliderPicture(self, value):
+		global pngcache
+		ptr = None
+		for cvalue, cptr in pngcache:
+			if cvalue== value:
+				ptr=cptr
+		if ptr is None:
+			if not fileExists(value):
+				ptr = loadPixmap(resolveFilename(SCOPE_SKIN_IMAGE, value), self.desktop)
+			else:
+				ptr = loadPixmap(value, self.desktop)
+		self.guiObject.setScrollbarSliderPicture(ptr)
+	def scrollbarBackgroundPicture(self, value):
+		global pngcache
+		ptr = None
+		for cvalue, cptr in pngcache:
+			if cvalue== value:
+				ptr=cptr
+		if ptr is None:
+			if not fileExists(value):
+				ptr = loadPixmap(resolveFilename(SCOPE_SKIN_IMAGE, value), self.desktop)
+			else:
+				ptr = loadPixmap(value, self.desktop)
 		self.guiObject.setScrollbarBackgroundPicture(ptr)
 	def alphatest(self, value):
 		self.guiObject.setAlphatest(
@@ -411,6 +486,14 @@ class AttributeParser:
 		self.guiObject.setBorderColor(parseColor(value))
 	def borderWidth(self, value):
 		self.guiObject.setBorderWidth(int(value))
+	def scrollbarSliderBorderWidth(self, value):
+		self.guiObject.setScrollbarSliderBorderWidth(int(value))
+	def scrollbarWidth(self, value):
+		self.guiObject.setScrollbarWidth(int(value))
+	def scrollbarSliderBorderColor(self, value):
+		self.guiObject.setSliderBorderColor(parseColor(value))
+	def scrollbarSliderForegroundColor(self, value):
+		self.guiObject.setSliderForegroundColor(parseColor(value))
 	def scrollbarMode(self, value):
 		self.guiObject.setScrollbarMode(getattr(self.guiObject, value))
 		#	{ "showOnDemand": self.guiObject.showOnDemand,
@@ -436,6 +519,8 @@ class AttributeParser:
 		self.guiObject.setShadowOffset(parsePosition(value, self.scaleTuple))
 	def noWrap(self, value):
 		self.guiObject.setNoWrap(1)
+	def linelength(self, value):
+		pass
 
 def applySingleAttribute(guiObject, desktop, attrib, value, scale = ((1,1),(1,1))):
 	# Someone still using applySingleAttribute?

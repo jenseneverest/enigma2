@@ -268,6 +268,8 @@ def loadPixmap(path, desktop):
 		raise SkinError("[Skin] pixmap file %s not found!" % path)
 	return ptr
 
+pngcache = []
+
 class AttributeParser:
 	def __init__(self, guiObject, desktop, scale=((1,1),(1,1))):
 		self.guiObject = guiObject

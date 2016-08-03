@@ -48,7 +48,7 @@ class LayoutInfo(Poll, Converter):
         if self.type in (self.FLASHINFO, self.HDDINFO, self.USBINFO):
             self.poll_interval = 5000
         else:
-            self.poll_interval = 3000
+            self.poll_interval = 1600
         self.poll_enabled = True
 
     def doSuspend(self, suspended):

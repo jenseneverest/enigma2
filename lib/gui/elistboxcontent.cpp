@@ -773,7 +773,7 @@ void eListboxPythonMultiContent::paint(gPainter &painter, eWindowStyle &style, c
 				if (PyTuple_Check(items))
 					buildfunc_ret = items = PyObject_CallObject(m_buildFunc, items);
 				else
-					eDebug("[eListboxPythonMultiContent] items is no tuple");
+					eDebug("[eListboxPythonMultiContent] items is not a tuple");
 			}
 			else
 				eDebug("[eListboxPythonMultiContent] buildfunc is not callable");
@@ -821,13 +821,13 @@ void eListboxPythonMultiContent::paint(gPainter &painter, eWindowStyle &style, c
 
 			if (!item)
 			{
-				eDebug("[eListboxPythonMultiContent] ?");
+				eDebug("[eListboxPythonMultiContent] no items[%d] ?", i);
 				goto error_out;
 			}
 
 			if (!PyTuple_Check(item))
 			{
-				eDebug("[eListboxPythonMultiContent] did not receive a tuple.");
+				eDebug("[eListboxPythonMultiContent] items[%d] is not a tuple.", i);
 				goto error_out;
 			}
 
@@ -835,7 +835,7 @@ void eListboxPythonMultiContent::paint(gPainter &painter, eWindowStyle &style, c
 
 			if (!size)
 			{
-				eDebug("[eListboxPythonMultiContent] receive empty tuple.");
+				eDebug("[eListboxPythonMultiContent] items[%d] is an empty tuple.", i);
 				goto error_out;
 			}
 
@@ -859,7 +859,7 @@ void eListboxPythonMultiContent::paint(gPainter &painter, eWindowStyle &style, c
 
 				if (!(px && py && pwidth && pheight && pfnt && pflags && pstring))
 				{
-					eDebug("[eListboxPythonMultiContent] received too small tuple (must be (TYPE_TEXT, x, y, width, height, fnt, flags, string [, color, backColor, backColorSelected, borderWidth, borderColor])");
+					eDebug("[eListboxPythonMultiContent] tuple too small (must be (TYPE_TEXT, x, y, width, height, fnt, flags, string [, color, backColor, backColorSelected, borderWidth, borderColor])");
 					goto error_out;
 				}
 
@@ -967,7 +967,7 @@ void eListboxPythonMultiContent::paint(gPainter &painter, eWindowStyle &style, c
 				{
 					if (!(px && py && pwidth && pheight && pfilled_perc))
 					{
-						eDebug("[eListboxPythonMultiContent] received too small tuple (must be (TYPE_PROGRESS, x, y, width, height, filled percent [,border width, foreColor, backColor, backColorSelected]))");
+						eDebug("[eListboxPythonMultiContent] tuple too small (must be (TYPE_PROGRESS, x, y, width, height, filled percent [,border width, foreColor, backColor, backColorSelected]))");
 						goto error_out;
 					}
 				}
@@ -978,7 +978,7 @@ void eListboxPythonMultiContent::paint(gPainter &painter, eWindowStyle &style, c
 						continue;
 					if (!(px && py && pwidth && pheight && pfilled_perc, ppixmap))
 					{
-						eDebug("[eListboxPythonMultiContent] received too small tuple (must be (TYPE_PROGRESS_PIXMAP, x, y, width, height, filled percent, pixmap, [,border width, foreColor, backColor, backColorSelected]))");
+						eDebug("[eListboxPythonMultiContent] tuple too small (must be (TYPE_PROGRESS_PIXMAP, x, y, width, height, filled percent, pixmap, [,border width, foreColor, backColor, backColorSelected]))");
 						goto error_out;
 					}
 				}
@@ -1064,7 +1064,7 @@ void eListboxPythonMultiContent::paint(gPainter &painter, eWindowStyle &style, c
 
 					if (SwigFromPython(pixmap, ppixmap))
 					{
-						eDebug("[eListboxPythonMultiContent] (Pixmap) get pixmap failed");
+						eDebug("[eListboxPythonMultiContent] progressbar get pixmap failed");
 						painter.clippop();
 						continue;
 					}
@@ -1081,7 +1081,7 @@ void eListboxPythonMultiContent::paint(gPainter &painter, eWindowStyle &style, c
 			case TYPE_PIXMAP: // pixmap
 			{
 			/*
-				(2, x, y, width, height, pixmap [, backColor, backColorSelected] )
+				(2, x, y, width, height, pixmap [, backColor, backColorSelected, flags] )
 			*/
 
 				ePyObject px = PyTuple_GET_ITEM(item, 1),
@@ -1093,7 +1093,7 @@ void eListboxPythonMultiContent::paint(gPainter &painter, eWindowStyle &style, c
 
 				if (!(px && py && pwidth && pheight && ppixmap))
 				{
-					eDebug("[eListboxPythonMultiContent] received too small tuple (must be (TYPE_PIXMAP, x, y, width, height, pixmap [, backColor, backColorSelected] ))");
+					eDebug("[eListboxPythonMultiContent] tuple too small (must be (TYPE_PIXMAP, x, y, width, height, pixmap [, backColor, backColorSelected] ))");
 					goto error_out;
 				}
 

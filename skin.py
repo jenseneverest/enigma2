@@ -13,6 +13,8 @@ from Tools.LoadPixmap import LoadPixmap
 from Components.RcModel import rc_model
 
 colorNames = {}
+switchPixmap = dict()
+
 # Predefined fonts, typically used in built-in screens and for components like
 # the movie list and so.
 fonts = {
@@ -540,6 +542,21 @@ def loadSingleSkinData(desktop, skin, path_prefix):
 			if fileExists(skinfile):
 				print "[Skin] loading include:", skinfile
 				loadSkin(skinfile)
+
+	for c in skin.findall('switchpixmap'):
+		for pixmap in c.findall('pixmap'):
+		get_attr = pixmap.attrib.get
+		name = get_attr('name')
+		filename = get_attr('filename')
+		if name and filename:
+			resolved_png = resolveFilename(SCOPE_ACTIVE_SKIN, filename, path_prefix=path_prefix)
+			print resolved_png
+			if fileExists(resolved_png):
+			switchPixmap[name] = resolved_png
+			else:
+			raise SkinError('[Skin] need filename, got', filename)
+		else:
+			raise SkinError('[Skin] need filename and name, got %s %s' % (name, filename))      
 
 	for c in skin.findall("colors"):
 		for color in c.findall("color"):

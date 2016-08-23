@@ -3,6 +3,8 @@
 #include <lib/gdi/font.h>
 #include <lib/python/python.h>
 
+#include <lib/gdi/epng.h>
+
 /*
     The basic idea is to have an interface which gives all relevant list
     processing functions, and can be used by the listbox to browse trough
@@ -305,6 +307,8 @@ void eListboxPythonStringContent::invalidate()
 
 //////////////////////////////////////
 
+RESULT SwigFromPython(ePtr<gPixmap> &res, PyObject *obj);
+
 void eListboxPythonConfigContent::paint(gPainter &painter, eWindowStyle &style, const ePoint &offset, int selected)
 {
 	ePtr<gFont> fnt;
@@ -396,6 +400,8 @@ void eListboxPythonConfigContent::paint(gPainter &painter, eWindowStyle &style, 
 			text = PyTuple_GET_ITEM(item, 0);
 			text = PyObject_Str(text); /* creates a new object - old object was borrowed! */
 			const char *configitemstring = (text && PyString_Check(text)) ? PyString_AsString(text) : "<not-a-string>";
+			painter.renderText(eRect(ePoint(offset.x()+15, offset.y()), m_itemsize), string,
+			gPainter::RT_HALIGN_LEFT | gPainter::RT_VALIGN_CENTER, border_color, border_size);
 			Py_XDECREF(text);
 			eSize itemsize = eSize(m_itemsize.width()-10, m_itemsize.height());
 			ePoint textoffset = ePoint(offset.x()+5, offset.y());
@@ -429,7 +435,6 @@ void eListboxPythonConfigContent::paint(gPainter &painter, eWindowStyle &style, 
 					/* convert type to string */
 				ePyObject type = PyTuple_GET_ITEM(value, 0);
 				const char *atype = (type && PyString_Check(type)) ? PyString_AsString(type) : 0;
-
 				if (atype)
 				{
 					if (!strcmp(atype, "text"))
@@ -443,11 +448,11 @@ void eListboxPythonConfigContent::paint(gPainter &painter, eWindowStyle &style, 
 						valueWidth = para->getBoundBox().width();
 
 						painter.setFont(fnt2);
-						painter.renderText(eRect(textoffset, itemsize), value, (value_alignment_left ?
-							gPainter::RT_HALIGN_LEFT : gPainter::RT_HALIGN_RIGHT) |
-							gPainter::RT_VALIGN_CENTER, border_color, border_size);
-
-							/* pvalue is borrowed */
+						if (value_alignment_left)
+							painter.renderText(eRect(ePoint(offset.x()-15, offset.y()), m_itemsize), value, gPainter::RT_HALIGN_LEFT | gPainter::RT_VALIGN_CENTER, border_color, border_size);
+						else
+							painter.renderText(eRect(ePoint(offset.x()-15, offset.y()), m_itemsize), value, gPainter::RT_HALIGN_RIGHT| gPainter::RT_VALIGN_CENTER, border_color, border_size);
+					/* pvalue is borrowed */
 					} else if (!strcmp(atype, "slider"))
 					{
 						ePyObject pvalue = PyTuple_GET_ITEM(value, 1);
@@ -466,15 +471,19 @@ void eListboxPythonConfigContent::paint(gPainter &painter, eWindowStyle &style, 
 						//hack - make it customizable
 						painter.fill(eRect(textoffset.x() + m_seperation, offset.y() + height/6, valueWidth, height*2/3));
 
-							/* pvalue is borrowed */
+						/* pvalue is borrowed */
 					} else if (!strcmp(atype, "mtext"))
 					{
 						ePyObject pvalue = PyTuple_GET_ITEM(value, 1);
 						const char *text = (pvalue && PyString_Check(pvalue)) ? PyString_AsString(pvalue) : "<not-a-string>";
-						ePtr<eTextPara> para = new eTextPara(eRect(textoffset, itemsize));
+						ePtr<eTextPara> para = new eTextPara(eRect(ePoint(offset.x()-15, offset.y()+15), m_itemsize));
 						para->setFont(fnt2);
 						para->renderString(text, gPainter::RT_VALIGN_CENTER);
-						para->realign(value_alignment_left ? eTextPara::dirLeft : eTextPara::dirRight);
+						if (value_alignment_left)
+							para->realign(eTextPara::dirLeft);
+						else
+							para->realign(eTextPara::dirRight);
+
 						int glyphs = para->size();
 
 						ePyObject plist;
@@ -519,6 +528,33 @@ void eListboxPythonConfigContent::paint(gPainter &painter, eWindowStyle &style, 
 						painter.renderPara(para, ePoint(0, 0));
 						/* pvalue is borrowed */
 						/* plist is 0 or borrowed */
+					}
+					else if (!strcmp(atype, "bolean"))
+					{
+						ePyObject data;
+						ePyObject ppixmap = PyTuple_GET_ITEM(value, 1);
+						
+						if (PyInt_Check(ppixmap) && data) /* if the pixemap is in fact a number, it refers to the 'data' list. */
+							ppixmap = PyTuple_GetItem(data, PyInt_AsLong(ppixmap));
+						
+						ePtr<gPixmap> pixmap;
+						if (SwigFromPython(pixmap, ppixmap))
+						{
+							eDebug("eListboxPythonMultiContent (Pixmap) get pixmap failed");
+							const char *value = (ppixmap && PyString_Check(ppixmap)) ? PyString_AsString(ppixmap) : "<not-a-string>";
+							painter.setFont(fnt2);
+							if (value_alignment_left)
+								painter.renderText(eRect(ePoint(offset.x()-15, offset.y()), m_itemsize), value, gPainter::RT_HALIGN_LEFT | gPainter::RT_VALIGN_CENTER, border_color, border_size);
+							else
+								painter.renderText(eRect(ePoint(offset.x()-15, offset.y()), m_itemsize), value, gPainter::RT_HALIGN_RIGHT| gPainter::RT_VALIGN_CENTER, border_color, border_size);
+						}
+						else
+						{
+							eRect rect(ePoint(m_itemsize.width()-79, offset.y()+15 ), eSize(69,19));
+							painter.clip(rect);
+							painter.blit(pixmap, rect.topLeft(), rect, 0);
+							painter.clippop();
+						}
 					}
 				}
 				/* type is borrowed */
